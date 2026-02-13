@@ -43,6 +43,9 @@ dependencies {
 	// Hawtio
 	implementation 'io.hawt:hawtio-springboot:4.2.0'
 	
+	// HTTP Client (SSL custom for UIE API)
+	implementation 'org.apache.httpcomponents.client5:httpclient5'
+	
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
