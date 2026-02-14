@@ -13,11 +13,11 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-        className="fixed inset-0 bg-black/50"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
         aria-hidden
       />
-      <div className="relative z-50 bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="relative z-50 bg-[var(--mongo-bg-dark)] border border-[var(--mongo-border)] rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {children}
       </div>
     </div>
@@ -25,11 +25,15 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
 }
 
 export function DialogHeader({ children }: { children: React.ReactNode }) {
-  return <div className="px-6 py-4 border-b">{children}</div>;
+  return (
+    <div className="px-6 py-4 border-b border-[var(--mongo-border)] bg-[var(--mongo-bg-medium)]">
+      {children}
+    </div>
+  );
 }
 
 export function DialogTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-lg font-semibold">{children}</h2>;
+  return <h2 className="text-base font-semibold text-white">{children}</h2>;
 }
 
 export function DialogContent({ children }: { children: React.ReactNode }) {
@@ -37,5 +41,9 @@ export function DialogContent({ children }: { children: React.ReactNode }) {
 }
 
 export function DialogFooter({ children }: { children: React.ReactNode }) {
-  return <div className="px-6 py-4 border-t flex justify-end gap-2">{children}</div>;
+  return (
+    <div className="px-6 py-4 border-t border-[var(--mongo-border)] flex justify-end gap-2 bg-[var(--mongo-bg-medium)]">
+      {children}
+    </div>
+  );
 }

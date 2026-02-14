@@ -1,6 +1,6 @@
 "use client";
 
-import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { Handle, Position } from "@xyflow/react";
 import { Repeat } from "lucide-react";
 
 export interface TransformNodeData extends Record<string, unknown> {
@@ -11,23 +11,27 @@ export interface TransformNodeData extends Record<string, unknown> {
   };
 }
 
-export function TransformNode({ data }: NodeProps<TransformNodeData>) {
+export function TransformNode({ data }: { data: TransformNodeData }) {
   const label = data.label || "Transform Node";
   const hasConfig =
     (data.config?.fieldMappings?.length ?? 0) > 0 || !!data.config?.outputTemplate?.trim();
 
   return (
     <div
-      className={`px-4 py-2 rounded-lg border-2 min-w-[140px] ${
-        hasConfig ? "border-emerald-500 bg-emerald-50" : "border-emerald-300 bg-emerald-50/50"
+      className={`px-4 py-2.5 rounded-lg border min-w-[160px] shadow-lg transition-all ${
+        hasConfig
+          ? "border-cyan-400/60 bg-[var(--mongo-bg-medium)]"
+          : "border-[var(--mongo-border)] bg-[var(--mongo-bg-medium)]/80"
       }`}
     >
-      <Handle type="target" position={Position.Top} className="!bg-emerald-500" />
+      <Handle type="target" position={Position.Top} className="!bg-cyan-400 !w-2.5 !h-2.5 !border-2 !border-[var(--mongo-bg-darkest)]" />
       <div className="flex items-center gap-2">
-        <Repeat className="size-4 text-emerald-600 shrink-0" />
-        <span className="text-sm font-medium text-emerald-900">{label}</span>
+        <div className="w-6 h-6 rounded bg-cyan-400/15 flex items-center justify-center">
+          <Repeat className="size-3.5 text-cyan-400" />
+        </div>
+        <span className="text-sm font-medium text-white">{label}</span>
       </div>
-      <Handle type="source" position={Position.Bottom} className="!bg-emerald-500" />
+      <Handle type="source" position={Position.Bottom} className="!bg-cyan-400 !w-2.5 !h-2.5 !border-2 !border-[var(--mongo-bg-darkest)]" />
     </div>
   );
 }
