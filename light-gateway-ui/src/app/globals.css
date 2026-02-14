@@ -2,28 +2,43 @@
 
 @layer base {
   body {
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Euclid Circular A", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    /* MongoDB Compass Dark Theme */
+    --background: 216 28% 7%;
+    --foreground: 210 17% 82%;
+    --card: 215 25% 11%;
+    --card-foreground: 210 17% 82%;
+    --primary: 148 100% 46%;
+    --primary-foreground: 216 28% 7%;
+    --secondary: 215 20% 16%;
+    --secondary-foreground: 210 17% 82%;
+    --muted: 215 20% 16%;
+    --muted-foreground: 215 14% 50%;
+    --accent: 215 20% 16%;
+    --accent-foreground: 210 17% 82%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --border: 215 20% 18%;
+    --input: 215 20% 18%;
+    --ring: 148 100% 46%;
     --radius: 0.5rem;
+
+    /* Custom MongoDB palette */
+    --mongo-green: #00ED64;
+    --mongo-green-dark: #00A548;
+    --mongo-green-light: #71F6BA;
+    --mongo-bg-darkest: #0F1419;
+    --mongo-bg-dark: #1C2024;
+    --mongo-bg-medium: #232B33;
+    --mongo-bg-light: #2D3640;
+    --mongo-text-primary: #C8D0D9;
+    --mongo-text-secondary: #6F7D8A;
+    --mongo-text-muted: #4A5568;
+    --mongo-border: #2D3640;
+    --mongo-sidebar: #14181C;
   }
 
   * {
@@ -31,14 +46,15 @@
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--mongo-bg-darkest);
+    color: var(--mongo-text-primary);
   }
 }
 
+/* Scrollbar - Dark theme */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -51,6 +67,75 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+::selection {
+  background: rgba(0, 237, 100, 0.25);
+  color: #fff;
+}
+
+/* React Flow dark theme overrides */
+.react-flow__node-input,
+.react-flow__node-output {
+  background: var(--mongo-bg-medium) !important;
+  border: 1px solid var(--mongo-border) !important;
+  color: var(--mongo-text-primary) !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.react-flow__node-input.selected,
+.react-flow__node-output.selected {
+  border-color: var(--mongo-green) !important;
+  box-shadow: 0 0 0 2px rgba(0, 237, 100, 0.2) !important;
+}
+
+.react-flow__edge-path {
+  stroke: var(--mongo-text-muted) !important;
+  stroke-width: 2 !important;
+}
+
+.react-flow__controls {
+  background: var(--mongo-bg-dark) !important;
+  border: 1px solid var(--mongo-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.react-flow__controls-button {
+  background: var(--mongo-bg-dark) !important;
+  border-color: var(--mongo-border) !important;
+  fill: var(--mongo-text-secondary) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--mongo-bg-medium) !important;
+  fill: var(--mongo-text-primary) !important;
+}
+
+.react-flow__minimap {
+  background: var(--mongo-bg-dark) !important;
+  border: 1px solid var(--mongo-border) !important;
+  border-radius: 8px !important;
+}
+
+.react-flow__background pattern line {
+  stroke: var(--mongo-border) !important;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--mongo-green);
+  outline-offset: 2px;
+}
+
+.glow-green {
+  box-shadow: 0 0 20px rgba(0, 237, 100, 0.15);
 }

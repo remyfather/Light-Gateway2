@@ -1,3 +1,4 @@
 *.hprof
 build/
 .gradle/
+light-gateway-ui/tsconfig.tsbuildinfo

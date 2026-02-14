@@ -1,10 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Workflow, Plus, FileText, Zap } from "lucide-react";
+import { Sidebar } from "@/components/sidebar";
+import {
+  Workflow,
+  Plus,
+  FileText,
+  Zap,
+  Clock,
+  MoreHorizontal,
+  Search,
+  LayoutGrid,
+  List,
+} from "lucide-react";
+import { useState } from "react";
 
 const sampleWorkflows = [
   {
@@ -28,12 +37,26 @@ const sampleWorkflows = [
 ];
 
 const recentWorkflows = [
-  { id: "1", title: "Invoice 정보 추출", lastUsed: "2024-01-15" },
-  { id: "2", title: "계약서 분석", lastUsed: "2024-01-12" },
+  {
+    id: "1",
+    title: "Invoice 정보 추출",
+    lastUsed: "2024-01-15",
+    status: "active",
+    nodes: 5,
+  },
+  {
+    id: "2",
+    title: "계약서 분석",
+    lastUsed: "2024-01-12",
+    status: "draft",
+    nodes: 4,
+  },
 ];
 
 export default function HomePage() {
   const router = useRouter();
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleNewWorkflow = () => {
     router.push("/workflows/new/design");
@@ -44,112 +67,249 @@ export default function HomePage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#f9fafb]">
-      <Header />
+    <div className="h-screen flex">
+      <Sidebar />
 
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto py-12 px-8">
-          {/* Hero */}
-          <div className="mb-12">
-            <h1 className="text-3xl font-bold text-[#111827] mb-2">
-              UIE Workflow Studio
-            </h1>
-            <p className="text-[#6b7280]">
-              Upstage UIE API를 활용한 워크플로우를 디자인하고, API로 배포하세요.
-            </p>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Bar */}
+        <header className="h-14 flex items-center justify-between px-6 border-b border-[var(--mongo-border)] bg-[var(--mongo-bg-dark)]">
+          <div className="flex items-center gap-3">
+            <h1 className="text-base font-semibold text-white">Workflows</h1>
+            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--mongo-bg-medium)] text-[var(--mongo-text-secondary)]">
+              {recentWorkflows.length}
+            </span>
           </div>
-
-          {/* My Workflows */}
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-[#111827]">
-                내 워크플로우
-              </h2>
-              <Button onClick={handleNewWorkflow}>
-                <Plus className="size-4" />
-                새 워크플로우
-              </Button>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[var(--mongo-text-muted)]" />
+              <input
+                type="text"
+                placeholder="Search workflows..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-1.5 w-64 rounded-md text-sm bg-[var(--mongo-bg-medium)] border border-[var(--mongo-border)] text-[var(--mongo-text-primary)] placeholder:text-[var(--mongo-text-muted)] focus:outline-none focus:border-[#00ED64]/50"
+              />
             </div>
+            <div className="flex items-center bg-[var(--mongo-bg-medium)] rounded-md border border-[var(--mongo-border)] p-0.5">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === "list"
+                    ? "bg-[var(--mongo-bg-light)] text-white"
+                    : "text-[var(--mongo-text-muted)] hover:text-[var(--mongo-text-secondary)]"
+                }`}
+              >
+                <List className="size-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === "grid"
+                    ? "bg-[var(--mongo-bg-light)] text-white"
+                    : "text-[var(--mongo-text-muted)] hover:text-[var(--mongo-text-secondary)]"
+                }`}
+              >
+                <LayoutGrid className="size-4" />
+              </button>
+            </div>
+            <button
+              onClick={handleNewWorkflow}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-[#00ED64] text-[#0F1419] hover:bg-[#00D45A] transition-colors"
+            >
+              <Plus className="size-4" />
+              New
+            </button>
+          </div>
+        </header>
 
-            <div className="border rounded-lg bg-white divide-y">
-              {recentWorkflows.length > 0 ? (
-                recentWorkflows.map((wf) => (
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {/* My Workflows */}
+          <section className="mb-8">
+            <h2 className="text-sm font-medium text-[var(--mongo-text-secondary)] uppercase tracking-wider mb-3">
+              My Workflows
+            </h2>
+
+            {viewMode === "list" ? (
+              <div className="rounded-lg border border-[var(--mongo-border)] bg-[var(--mongo-bg-dark)] overflow-hidden">
+                <div className="grid grid-cols-[1fr_120px_80px_100px_40px] gap-4 px-4 py-2.5 border-b border-[var(--mongo-border)] bg-[var(--mongo-bg-medium)]">
+                  <span className="text-xs font-medium text-[var(--mongo-text-muted)] uppercase tracking-wider">
+                    Name
+                  </span>
+                  <span className="text-xs font-medium text-[var(--mongo-text-muted)] uppercase tracking-wider">
+                    Last Modified
+                  </span>
+                  <span className="text-xs font-medium text-[var(--mongo-text-muted)] uppercase tracking-wider">
+                    Nodes
+                  </span>
+                  <span className="text-xs font-medium text-[var(--mongo-text-muted)] uppercase tracking-wider">
+                    Status
+                  </span>
+                  <span />
+                </div>
+                {recentWorkflows.length > 0 ? (
+                  recentWorkflows.map((wf) => (
+                    <div
+                      key={wf.id}
+                      onClick={() => handleWorkflowClick(wf.id)}
+                      className="grid grid-cols-[1fr_120px_80px_100px_40px] gap-4 px-4 py-3 border-b border-[var(--mongo-border)] last:border-b-0 hover:bg-[var(--mongo-bg-medium)] cursor-pointer transition-colors group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-md bg-[#00ED64]/10 flex items-center justify-center">
+                          <Workflow className="size-4 text-[#00ED64]" />
+                        </div>
+                        <span className="text-sm font-medium text-[var(--mongo-text-primary)] group-hover:text-white transition-colors">
+                          {wf.title}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-xs text-[var(--mongo-text-muted)]">
+                          <Clock className="inline size-3 mr-1" />
+                          {wf.lastUsed}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-xs text-[var(--mongo-text-secondary)]">
+                          {wf.nodes} nodes
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                            wf.status === "active"
+                              ? "bg-[#00ED64]/15 text-[#00ED64]"
+                              : "bg-[var(--mongo-bg-light)] text-[var(--mongo-text-muted)]"
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              wf.status === "active"
+                                ? "bg-[#00ED64]"
+                                : "bg-[var(--mongo-text-muted)]"
+                            }`}
+                          />
+                          {wf.status === "active" ? "Active" : "Draft"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1 rounded hover:bg-[var(--mongo-bg-light)] text-[var(--mongo-text-muted)] hover:text-[var(--mongo-text-primary)] transition-colors"
+                        >
+                          <MoreHorizontal className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-4 py-12 text-center">
+                    <Workflow className="size-12 mx-auto mb-3 text-[var(--mongo-text-muted)] opacity-40" />
+                    <p className="text-sm text-[var(--mongo-text-muted)]">
+                      No workflows yet
+                    </p>
+                    <button
+                      className="mt-4 px-4 py-2 rounded-md text-sm border border-[var(--mongo-border)] text-[var(--mongo-text-secondary)] hover:text-white hover:border-[var(--mongo-text-muted)] transition-colors"
+                      onClick={handleNewWorkflow}
+                    >
+                      Create your first workflow
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recentWorkflows.map((wf) => (
                   <div
                     key={wf.id}
                     onClick={() => handleWorkflowClick(wf.id)}
-                    className="flex items-center justify-between px-4 py-3 hover:bg-[#f9fafb] cursor-pointer transition-colors"
+                    className="rounded-lg border border-[var(--mongo-border)] bg-[var(--mongo-bg-dark)] p-4 cursor-pointer hover:border-[#00ED64]/30 transition-all group"
                   >
-                    <div className="flex items-center gap-3">
-                      <Workflow className="size-4 text-[#6b7280]" />
-                      <span className="text-sm font-medium text-[#111827]">
-                        {wf.title}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-[#00ED64]/10 flex items-center justify-center">
+                        <Workflow className="size-5 text-[#00ED64]" />
+                      </div>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                          wf.status === "active"
+                            ? "bg-[#00ED64]/15 text-[#00ED64]"
+                            : "bg-[var(--mongo-bg-light)] text-[var(--mongo-text-muted)]"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            wf.status === "active"
+                              ? "bg-[#00ED64]"
+                              : "bg-[var(--mongo-text-muted)]"
+                          }`}
+                        />
+                        {wf.status === "active" ? "Active" : "Draft"}
                       </span>
                     </div>
-                    <span className="text-xs text-[#6b7280]">{wf.lastUsed}</span>
+                    <h3 className="text-sm font-medium text-[var(--mongo-text-primary)] group-hover:text-white transition-colors mb-1">
+                      {wf.title}
+                    </h3>
+                    <div className="flex items-center gap-3 text-xs text-[var(--mongo-text-muted)]">
+                      <span>{wf.nodes} nodes</span>
+                      <span>{wf.lastUsed}</span>
+                    </div>
                   </div>
-                ))
-              ) : (
-                <div className="px-4 py-12 text-center text-[#6b7280]">
-                  <Workflow className="size-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">아직 워크플로우가 없습니다</p>
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={handleNewWorkflow}
-                  >
-                    첫 워크플로우 만들기
-                  </Button>
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
 
-          {/* Sample Workflows */}
-          <section>
-            <h2 className="text-xl font-semibold text-[#111827] mb-4">
-              샘플 워크플로우
+          {/* Sample Workflows / Templates */}
+          <section className="mb-8">
+            <h2 className="text-sm font-medium text-[var(--mongo-text-secondary)] uppercase tracking-wider mb-3">
+              Templates
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {sampleWorkflows.map((wf) => (
-                <Card
+                <div
                   key={wf.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow hover:border-amber-200"
                   onClick={() => handleWorkflowClick(wf.id)}
+                  className="rounded-lg border border-[var(--mongo-border)] bg-[var(--mongo-bg-dark)] p-4 cursor-pointer hover:border-[#00ED64]/30 transition-all group"
                 >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center gap-2 mb-1">
-                      <FileText className="size-4 text-amber-500" />
-                      <CardTitle className="text-base">{wf.title}</CardTitle>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--mongo-bg-medium)] flex items-center justify-center border border-[var(--mongo-border)]">
+                      <FileText className="size-4 text-[#00ED64]" />
                     </div>
-                    <p className="text-sm text-[#6b7280]">{wf.description}</p>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex gap-1 flex-wrap">
-                      {wf.badges.map((badge) => (
-                        <span
-                          key={badge}
-                          className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
-                        >
-                          {badge}
-                        </span>
-                      ))}
+                    <div>
+                      <h3 className="text-sm font-medium text-[var(--mongo-text-primary)] group-hover:text-white transition-colors">
+                        {wf.title}
+                      </h3>
+                      <p className="text-xs text-[var(--mongo-text-muted)]">
+                        {wf.description}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {wf.badges.map((badge) => (
+                      <span
+                        key={badge}
+                        className="px-2 py-0.5 rounded text-[10px] font-medium bg-[var(--mongo-bg-medium)] text-[var(--mongo-text-secondary)] border border-[var(--mongo-border)]"
+                      >
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </section>
 
-          {/* Info */}
-          <div className="mt-12 p-4 rounded-lg bg-amber-50 border border-amber-200">
+          {/* Info Banner */}
+          <div className="rounded-lg border border-[#00ED64]/20 bg-[#00ED64]/5 p-4">
             <div className="flex gap-3">
-              <Zap className="size-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="text-sm text-amber-900">
-                <p className="font-medium mb-1">워크플로우 → API</p>
-                <p>
+              <Zap className="size-5 text-[#00ED64] shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-[#00ED64] mb-1">
+                  Workflow → REST API
+                </p>
+                <p className="text-[var(--mongo-text-secondary)]">
                   GUI에서 워크플로우를 디자인하고 배포하면, 레거시 시스템에서
                   호출할 수 있는 REST API로 자동 변환됩니다. UIE 스키마/프롬프트
-                 별 API를 하나의 엔드포인트로 통합하세요.
+                  별 API를 하나의 엔드포인트로 통합하세요.
                 </p>
               </div>
             </div>

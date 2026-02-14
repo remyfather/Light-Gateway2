@@ -2,8 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
-import { Header } from "@/components/header";
-import { Button } from "@/components/ui/button";
+import { Sidebar } from "@/components/sidebar";
 import {
   ReactFlow,
   Background,
@@ -18,7 +17,7 @@ import {
   type OnEdgesChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Save, Play } from "lucide-react";
+import { ArrowLeft, Save, Play, X } from "lucide-react";
 import { UieNode } from "@/components/workflow/UieNode";
 import { UieNodeConfigPanel } from "@/components/workflow/UieNodeConfigPanel";
 import type { UieNodeData } from "@/components/workflow/UieNode";
@@ -295,77 +294,119 @@ export default function WorkflowDesignPage() {
   );
 
   return (
-    <div className="h-screen flex flex-col bg-[#f9fafb]">
-      <Header />
+    <div className="h-screen flex">
+      <Sidebar />
 
-      <div className="flex items-center justify-between px-6 py-2 border-b bg-white">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => router.push("/")}>
-            <ArrowLeft className="size-4" />
-            돌아가기
-          </Button>
-          <span className="text-sm text-[#6b7280]">
-            {isNew ? "새 워크플로우" : `워크플로우: ${workflowName}`}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleSave} disabled={saving}>
-            <Save className="size-4" />
-            {saving ? "저장 중..." : "저장"}
-          </Button>
-          <Button size="sm" disabled={!savedId}>
-            <Play className="size-4" />
-            배포
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex-1 flex">
-        <div className="flex-1">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange as OnNodesChange}
-            onEdgesChange={onEdgesChange as OnEdgesChange}
-            onNodeClick={handleNodeClick}
-            onPaneClick={handlePaneClick}
-            nodeTypes={nodeTypes}
-            fitView
-            className="bg-[#fafafa]"
-          >
-            <Background />
-            <Controls />
-            <MiniMap />
-          </ReactFlow>
-        </div>
-
-        {selectedNode && (
-          <div className="w-[840px] min-w-[840px] p-8 border-l bg-white overflow-auto shadow-lg">
-            {selectedNode.type === "uie" && (
-              <UieNodeConfigPanel
-                node={selectedNode as Node<UieNodeData>}
-                onUpdate={handleUpdateNode}
-                workflowId={savedId}
-              />
-            )}
-            {selectedNode.type === "transform" && (
-              <TransformNodeConfigPanel
-                node={selectedNode as Node<TransformNodeData>}
-                onUpdate={handleUpdateNode}
-                workflowId={savedId}
-              />
-            )}
-            {selectedNode.type === "connector" && (
-              <ConnectorNodeConfigPanel
-                node={selectedNode as Node<ConnectorNodeData>}
-                onUpdate={handleUpdateNode}
-              />
-            )}
-            {(selectedNode.type === "input" || selectedNode.type === "output") && (
-              <NodePurposePanel nodeType={selectedNode.type} />
-            )}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Designer Toolbar */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--mongo-border)] bg-[var(--mongo-bg-dark)]">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push("/")}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-[var(--mongo-text-secondary)] hover:text-white hover:bg-[var(--mongo-bg-medium)] transition-colors"
+            >
+              <ArrowLeft className="size-4" />
+              Back
+            </button>
+            <div className="w-px h-6 bg-[var(--mongo-border)]" />
+            <span className="text-sm text-[var(--mongo-text-secondary)]">
+              {isNew ? "New Workflow" : workflowName}
+            </span>
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm border border-[var(--mongo-border)] text-[var(--mongo-text-primary)] hover:bg-[var(--mongo-bg-medium)] transition-colors disabled:opacity-50"
+            >
+              <Save className="size-4" />
+              {saving ? "Saving..." : "Save"}
+            </button>
+            <button
+              disabled={!savedId}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-[#00ED64] text-[#0F1419] hover:bg-[#00D45A] transition-colors disabled:opacity-30"
+            >
+              <Play className="size-4" />
+              Deploy
+            </button>
+          </div>
+        </div>
+
+        {/* Canvas + Config Panel */}
+        <div className="flex-1 flex overflow-hidden">
+          <div className="flex-1 relative">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange as OnNodesChange}
+              onEdgesChange={onEdgesChange as OnEdgesChange}
+              onNodeClick={handleNodeClick}
+              onPaneClick={handlePaneClick}
+              nodeTypes={nodeTypes}
+              fitView
+              className="!bg-[var(--mongo-bg-darkest)]"
+            >
+              <Background color="var(--mongo-border)" gap={20} size={1} />
+              <Controls />
+              <MiniMap
+                nodeStrokeColor="var(--mongo-border)"
+                nodeColor="var(--mongo-bg-light)"
+                maskColor="rgba(15, 20, 25, 0.8)"
+              />
+            </ReactFlow>
+          </div>
+
+          {selectedNode && (
+            <div className="w-[420px] min-w-[420px] border-l border-[var(--mongo-border)] bg-[var(--mongo-bg-dark)] overflow-auto">
+              {/* Panel Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--mongo-border)] bg-[var(--mongo-bg-medium)]">
+                <span className="text-sm font-medium text-white">
+                  {selectedNode.type === "uie"
+                    ? "UIE Configuration"
+                    : selectedNode.type === "transform"
+                    ? "Transform Configuration"
+                    : selectedNode.type === "connector"
+                    ? "Connector Configuration"
+                    : selectedNode.type === "input"
+                    ? "Input Node"
+                    : "Output Node"}
+                </span>
+                <button
+                  onClick={() => setSelectedNode(null)}
+                  className="p-1 rounded hover:bg-[var(--mongo-bg-light)] text-[var(--mongo-text-muted)] hover:text-white transition-colors"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+
+              <div className="p-4">
+                {selectedNode.type === "uie" && (
+                  <UieNodeConfigPanel
+                    node={selectedNode as Node<UieNodeData>}
+                    onUpdate={handleUpdateNode}
+                    workflowId={savedId}
+                  />
+                )}
+                {selectedNode.type === "transform" && (
+                  <TransformNodeConfigPanel
+                    node={selectedNode as Node<TransformNodeData>}
+                    onUpdate={handleUpdateNode}
+                    workflowId={savedId}
+                  />
+                )}
+                {selectedNode.type === "connector" && (
+                  <ConnectorNodeConfigPanel
+                    node={selectedNode as Node<ConnectorNodeData>}
+                    onUpdate={handleUpdateNode}
+                  />
+                )}
+                {(selectedNode.type === "input" || selectedNode.type === "output") && (
+                  <NodePurposePanel nodeType={selectedNode.type} />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -112,68 +112,81 @@ export function TransformMappingModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogHeader>
-        <DialogTitle>Source ↔ Target 매핑</DialogTitle>
+        <DialogTitle>Source → Target Mapping</DialogTitle>
       </DialogHeader>
       <DialogContent>
         <div className="grid grid-cols-2 gap-6">
+          {/* Source Panel */}
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Source (UIE 결과)</h3>
-            <div className="rounded-lg border bg-gray-50 p-3 max-h-64 overflow-auto space-y-2">
+            <h3 className="text-xs font-medium text-[var(--mongo-text-secondary)] uppercase tracking-wider mb-2">
+              Source (UIE Result)
+            </h3>
+            <div className="rounded-lg border border-[var(--mongo-border)] bg-[var(--mongo-bg-medium)] p-3 max-h-64 overflow-auto space-y-1.5">
               {sourceItems.length === 0 ? (
-                <p className="text-sm text-gray-400 py-4 text-center">미리보기 실행 후 표시</p>
+                <p className="text-xs text-[var(--mongo-text-muted)] py-4 text-center">
+                  Run preview to populate
+                </p>
               ) : (
                 sourceItems.map((item) => (
                   <div
                     key={item.key}
                     draggable
                     onDragStart={(e) => onDragStart(e, item.key)}
-                    className="flex items-center gap-2 px-3 py-2 rounded bg-white border cursor-grab active:cursor-grabbing text-sm hover:bg-emerald-50"
+                    className="flex items-center gap-2 px-3 py-2 rounded bg-[var(--mongo-bg-dark)] border border-[var(--mongo-border)] cursor-grab active:cursor-grabbing text-sm hover:border-[#00ED64]/30 transition-colors"
                   >
-                    <span className="font-mono flex-1 truncate">{item.key}</span>
-                    <span className="text-gray-500 text-xs truncate max-w-[100px]">{item.value}</span>
+                    <span className="font-mono flex-1 truncate text-[var(--mongo-text-primary)] text-xs">
+                      {item.key}
+                    </span>
+                    <span className="text-[var(--mongo-text-muted)] text-[10px] truncate max-w-[100px]">
+                      {item.value}
+                    </span>
                   </div>
                 ))
               )}
             </div>
           </div>
+
+          {/* Target Panel */}
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Target (편집 가능)</h3>
+            <h3 className="text-xs font-medium text-[var(--mongo-text-secondary)] uppercase tracking-wider mb-2">
+              Target (Editable)
+            </h3>
             <div className="flex gap-2 mb-2">
               <Input
                 value={newPath}
                 onChange={(e) => setNewPath(e.target.value)}
                 placeholder="spec.cpu"
-                className="flex-1 font-mono text-sm"
+                className="flex-1 font-mono text-xs"
                 onKeyDown={(e) => e.key === "Enter" && (addTargetPath(newPath), setNewPath(""))}
               />
               <Button variant="outline" size="sm" onClick={() => (addTargetPath(newPath), setNewPath(""))}>
                 <Plus className="size-4" />
               </Button>
               <Button variant="ghost" size="sm" onClick={initFromSource}>
-                Source와 동일
+                Auto
               </Button>
             </div>
-            <div className="rounded-lg border bg-gray-50 p-3 max-h-64 overflow-auto space-y-2">
+            <div className="rounded-lg border border-[var(--mongo-border)] bg-[var(--mongo-bg-medium)] p-3 max-h-64 overflow-auto space-y-1.5">
               {targetPaths.map((path) => (
                 <div
                   key={path}
                   onDrop={(e) => onDrop(e, path)}
                   onDragOver={onDragOver}
-                  className={`flex items-center gap-2 px-3 py-2 rounded text-sm ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
                     getMappedSource(path)
-                      ? "bg-emerald-50 border border-emerald-200"
-                      : "bg-white border border-dashed"
+                      ? "bg-[#00ED64]/5 border border-[#00ED64]/20"
+                      : "bg-[var(--mongo-bg-dark)] border border-dashed border-[var(--mongo-border)]"
                   }`}
                 >
                   <Input
                     value={path}
                     onChange={(e) => updateTargetPath(path, e.target.value)}
-                    className="flex-1 font-mono text-sm h-8"
+                    className="flex-1 font-mono text-xs h-7 bg-transparent border-0 p-0 focus:ring-0"
                   />
-                  <span className="text-xs text-gray-500 shrink-0 w-20 truncate">
-                    ← {getMappedSource(path) || "드롭"}
+                  <span className="text-[10px] text-[var(--mongo-text-muted)] shrink-0 w-20 truncate">
+                    ← {getMappedSource(path) || "drop here"}
                   </span>
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => removeMapping(path)}>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => removeMapping(path)}>
                     <X className="size-3" />
                   </Button>
                 </div>
@@ -184,9 +197,9 @@ export function TransformMappingModal({
       </DialogContent>
       <DialogFooter>
         <Button variant="outline" onClick={() => onOpenChange(false)}>
-          취소
+          Cancel
         </Button>
-        <Button onClick={handleSave}>저장</Button>
+        <Button onClick={handleSave}>Save</Button>
       </DialogFooter>
     </Dialog>
   );

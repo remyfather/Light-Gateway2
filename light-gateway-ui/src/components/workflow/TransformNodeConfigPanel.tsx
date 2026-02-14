@@ -2,14 +2,13 @@
 
 import { useState, useRef } from "react";
 import { Node } from "@xyflow/react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import type { TransformNodeData } from "./TransformNode";
 import type { FieldMapping } from "@/lib/api";
 import * as api from "@/lib/api";
-import { Play, Upload, Map } from "lucide-react";
+import { Play, Upload, Map, Repeat } from "lucide-react";
 import { TransformMappingModal } from "./TransformMappingModal";
 
 interface SourceItem {
@@ -66,7 +65,7 @@ export function TransformNodeConfigPanel({
 
   const handlePreview = async () => {
     if (!workflowId || !fileRef.current?.files?.[0]) {
-      setError("저장 후 파일을 선택하세요.");
+      setError("Save workflow first, then select a file.");
       return;
     }
     setLoading(true);
@@ -83,60 +82,69 @@ export function TransformNodeConfigPanel({
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Transform Node</CardTitle>
-        <div className="mt-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-900">
-          <p className="font-medium">목적</p>
-          <p className="mt-0.5">
-            UIE 출력을 기업 스키마로 매핑. Source → Target 드래그앤드롭. 기본값은 Source와 동일.
-          </p>
+    <div className="space-y-5">
+      {/* Purpose Banner */}
+      <div className="p-3 rounded-lg bg-cyan-400/5 border border-cyan-400/20">
+        <div className="flex items-center gap-2 mb-1">
+          <Repeat className="size-3.5 text-cyan-400" />
+          <span className="text-xs font-medium text-cyan-400">Purpose</span>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <Label>라벨</Label>
-          <Input
-            value={data.label || ""}
-            onChange={(e) => handleChange("label", e.target.value)}
-            placeholder="Transform Node"
-            className="mt-1"
+        <p className="text-xs text-[var(--mongo-text-secondary)]">
+          Maps UIE output to enterprise schema. Drag Source to Target. Default target matches source keys.
+        </p>
+      </div>
+
+      {/* Label */}
+      <div className="space-y-1.5">
+        <Label>Label</Label>
+        <Input
+          value={data.label || ""}
+          onChange={(e) => handleChange("label", e.target.value)}
+          placeholder="Transform Node"
+        />
+      </div>
+
+      {/* Source Load (Preview) */}
+      <div className="pt-3 border-t border-[var(--mongo-border)]">
+        <Label>Load Source (Preview)</Label>
+        <div className="flex gap-2 mt-2 items-center flex-wrap">
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".pdf,.png,.jpg,.jpeg"
+            className="hidden"
+            onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)}
           />
-        </div>
-        <div className="pt-2 border-t">
-          <Label>Source 로드 (미리보기)</Label>
-          <div className="flex gap-2 mt-1 items-center flex-wrap">
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".pdf,.png,.jpg,.jpeg"
-              className="hidden"
-              onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)}
-            />
-            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-              <Upload className="size-4" />
-              파일
-            </Button>
-            <Button size="sm" onClick={handlePreview} disabled={loading || !workflowId || !fileName}>
-              <Play className="size-4" />
-              {loading ? "실행 중..." : "미리보기"}
-            </Button>
-            {fileName && <span className="text-xs text-gray-500 truncate max-w-[120px]">{fileName}</span>}
-          </div>
-          {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
-        </div>
-        <div>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setModalOpen(true)}
-            disabled={sourceItems.length === 0}
-          >
-            <Map className="size-4" />
-            매핑 편집 {fieldMappings.length > 0 && `(${fieldMappings.length}개)`}
+          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+            <Upload className="size-4" />
+            File
           </Button>
+          <Button size="sm" onClick={handlePreview} disabled={loading || !workflowId || !fileName}>
+            <Play className="size-4" />
+            {loading ? "Running..." : "Preview"}
+          </Button>
+          {fileName && (
+            <span className="text-xs text-[var(--mongo-text-muted)] truncate max-w-[120px]">
+              {fileName}
+            </span>
+          )}
         </div>
-      </CardContent>
+        {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+      </div>
+
+      {/* Mapping Editor */}
+      <div>
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => setModalOpen(true)}
+          disabled={sourceItems.length === 0}
+        >
+          <Map className="size-4" />
+          Edit Mapping {fieldMappings.length > 0 && `(${fieldMappings.length})`}
+        </Button>
+      </div>
+
       <TransformMappingModal
         open={modalOpen}
         onOpenChange={setModalOpen}
@@ -144,6 +152,6 @@ export function TransformNodeConfigPanel({
         fieldMappings={fieldMappings}
         onSave={(mappings) => handleChange("fieldMappings", mappings)}
       />
-    </Card>
+    </div>
   );
 }
