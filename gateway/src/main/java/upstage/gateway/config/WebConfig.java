@@ -17,6 +17,10 @@ public class WebConfig {
                         .allowedOrigins("http://localhost:3001", "http://127.0.0.1:3001")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
+                registry.addMapping("/executions/**")
+                        .allowedOrigins("http://localhost:3001", "http://127.0.0.1:3001")
+                        .allowedMethods("GET", "OPTIONS")
+                        .allowedHeaders("*");
             }
         };
     }

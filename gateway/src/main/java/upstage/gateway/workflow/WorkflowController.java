@@ -4,8 +4,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import upstage.gateway.workflow.model.Workflow;
+import upstage.gateway.workflow.execution.ExecutionContext;
+import upstage.gateway.workflow.execution.ExecutionHistoryService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/workflows")
@@ -13,10 +16,14 @@ public class WorkflowController {
 
     private final WorkflowService workflowService;
     private final WorkflowExecutionService executionService;
+    private final ExecutionHistoryService executionHistory;
 
-    public WorkflowController(WorkflowService workflowService, WorkflowExecutionService executionService) {
+    public WorkflowController(WorkflowService workflowService,
+                               WorkflowExecutionService executionService,
+                               ExecutionHistoryService executionHistory) {
         this.workflowService = workflowService;
         this.executionService = executionService;
+        this.executionHistory = executionHistory;
     }
 
     @GetMapping
@@ -51,6 +58,8 @@ public class WorkflowController {
                 : ResponseEntity.notFound().build();
     }
 
+    /* ── Single-file execute ── */
+
     @PostMapping(value = "/{id}/execute", consumes = "multipart/form-data")
     public ResponseEntity<?> execute(
             @PathVariable String id,
@@ -58,9 +67,18 @@ public class WorkflowController {
         return executionService.execute(id, file);
     }
 
-    /**
-     * 미리보기 실행 - UIE 노드까지 실행(호출+파싱) 후 결과 반환 (Transform 매핑 설정용)
-     */
+    /* ── Multi-file batch execute ── */
+
+    @PostMapping(value = "/{id}/execute/batch", consumes = "multipart/form-data")
+    public ResponseEntity<?> executeBatch(
+            @PathVariable String id,
+            @RequestParam("files") MultipartFile[] files,
+            @RequestParam(value = "requestId", required = false) String requestId) {
+        return executionService.executeBatch(id, files, requestId);
+    }
+
+    /* ── Preview ── */
+
     @PostMapping(value = "/{id}/preview", consumes = "multipart/form-data")
     public ResponseEntity<?> preview(
             @PathVariable String id,
@@ -68,4 +86,22 @@ public class WorkflowController {
         return executionService.preview(id, file);
     }
 
+    /* ── Execution History ── */
+
+    @GetMapping("/executions")
+    public List<ExecutionContext> listExecutions() {
+        return executionHistory.findAll();
+    }
+
+    @GetMapping("/executions/{requestId}")
+    public ResponseEntity<ExecutionContext> getExecution(@PathVariable String requestId) {
+        return executionHistory.findByRequestId(requestId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/executions")
+    public List<ExecutionContext> getWorkflowExecutions(@PathVariable String id) {
+        return executionHistory.findByWorkflowId(id);
+    }
 }

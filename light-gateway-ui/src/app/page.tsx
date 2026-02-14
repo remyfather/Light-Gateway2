@@ -34,6 +34,12 @@ const sampleWorkflows = [
     description: "선하증권에서 화물/선박 정보 추출",
     badges: ["UIE", "Schema"],
   },
+  {
+    id: "batch-sheets",
+    title: "Batch → Google Sheets",
+    description: "다수 파일 병렬 UIE 처리 후 Google Sheets에 결과 자동 업데이트",
+    badges: ["Batch", "Fan-out", "Sheets"],
+  },
 ];
 
 const recentWorkflows = [
@@ -307,9 +313,9 @@ export default function HomePage() {
                   Workflow → REST API
                 </p>
                 <p className="text-[var(--mongo-text-secondary)]">
-                  GUI에서 워크플로우를 디자인하고 배포하면, 레거시 시스템에서
-                  호출할 수 있는 REST API로 자동 변환됩니다. UIE 스키마/프롬프트
-                  별 API를 하나의 엔드포인트로 통합하세요.
+                  n8n 스타일의 GUI에서 워크플로우를 디자인하세요. Splitter로 다수의 파일을 병렬 처리하고,
+                  Merger로 결과를 통합하고, Google Sheets나 REST API로 결과를 전달할 수 있습니다.
+                  배포하면 REST API로 자동 변환됩니다.
                 </p>
               </div>
             </div>

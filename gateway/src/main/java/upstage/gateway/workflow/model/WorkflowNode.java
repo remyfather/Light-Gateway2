@@ -15,7 +15,10 @@ import lombok.NoArgsConstructor;
     @JsonSubTypes.Type(value = upstage.gateway.workflow.uie.UieNode.class, name = "uie"),
     @JsonSubTypes.Type(value = upstage.gateway.workflow.transform.TransformNode.class, name = "transform"),
     @JsonSubTypes.Type(value = upstage.gateway.workflow.connector.ConnectorNode.class, name = "connector"),
-    @JsonSubTypes.Type(value = upstage.gateway.workflow.output.OutputNode.class, name = "output")
+    @JsonSubTypes.Type(value = upstage.gateway.workflow.output.OutputNode.class, name = "output"),
+    @JsonSubTypes.Type(value = upstage.gateway.workflow.splitter.SplitterNode.class, name = "splitter"),
+    @JsonSubTypes.Type(value = upstage.gateway.workflow.merger.MergerNode.class, name = "merger"),
+    @JsonSubTypes.Type(value = upstage.gateway.workflow.googlesheets.GoogleSheetsNode.class, name = "googlesheets")
 })
 public abstract class WorkflowNode {
 

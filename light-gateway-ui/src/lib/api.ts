@@ -28,13 +28,31 @@ export interface ConnectorNodeConfig {
   headers?: Record<string, string>;
 }
 
+export interface SplitterNodeConfig {
+  maxParallel?: number;
+  timeoutSeconds?: number;
+}
+
+export interface MergerNodeConfig {
+  strategy?: "array" | "flat_merge" | "grouped";
+  groupByKey?: string;
+  includeFileMetadata?: boolean;
+}
+
+export interface GoogleSheetsNodeConfig {
+  webhookUrl?: string;
+  sheetName?: string;
+  columnKeys?: string[];
+  includeHeader?: boolean;
+}
+
 export interface WorkflowNode {
   id: string;
-  type: "input" | "uie" | "transform" | "connector" | "output";
+  type: "input" | "uie" | "transform" | "connector" | "output" | "splitter" | "merger" | "googlesheets";
   label?: string;
   positionX: number;
   positionY: number;
-  config?: UieNodeConfig | TransformNodeConfig | ConnectorNodeConfig;
+  config?: UieNodeConfig | TransformNodeConfig | ConnectorNodeConfig | SplitterNodeConfig | MergerNodeConfig | GoogleSheetsNodeConfig;
 }
 
 export interface WorkflowEdge {
@@ -48,6 +66,17 @@ export interface Workflow {
   name: string;
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
+}
+
+export interface ExecutionContext {
+  requestId: string;
+  workflowId: string;
+  status: "RUNNING" | "SUCCESS" | "FAILED";
+  totalFiles: number;
+  processedFiles: number;
+  startTime: string;
+  endTime?: string;
+  errorMessage?: string;
 }
 
 export async function listWorkflows(): Promise<Workflow[]> {
@@ -96,6 +125,21 @@ export async function executeWorkflow(id: string, file: File): Promise<unknown> 
   return res.json();
 }
 
+export async function executeBatchWorkflow(id: string, files: File[], requestId?: string): Promise<unknown> {
+  const formData = new FormData();
+  files.forEach((f) => formData.append("files", f));
+  if (requestId) formData.append("requestId", requestId);
+  const res = await fetch(`${API_BASE}/workflows/${id}/execute/batch`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || "Batch execute failed");
+  }
+  return res.json();
+}
+
 /** 미리보기 - UIE 실행(호출+파싱) 결과 반환 */
 export async function previewWorkflow(id: string, file: File): Promise<Record<string, unknown>> {
   const formData = new FormData();
@@ -108,6 +152,18 @@ export async function previewWorkflow(id: string, file: File): Promise<Record<st
     const err = await res.json().catch(() => ({}));
     throw new Error((err as { error?: string }).error || "Preview failed");
   }
+  return res.json();
+}
+
+export async function listExecutions(): Promise<ExecutionContext[]> {
+  const res = await fetch(`${API_BASE}/workflows/executions`);
+  if (!res.ok) throw new Error("Failed to list executions");
+  return res.json();
+}
+
+export async function getExecution(requestId: string): Promise<ExecutionContext> {
+  const res = await fetch(`${API_BASE}/workflows/executions/${requestId}`);
+  if (!res.ok) throw new Error("Failed to get execution");
   return res.json();
 }
 
